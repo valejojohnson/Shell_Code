@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#Create Variable for storing the current date (mm-dd-yy)
+today=$(date +'%m-%d-%y')
+source=partnerportal-deploy.aws.paysign.com/prod/
+destination=partnerportal.aws.paysign.com
+cldfnt=E3J29Z06Z3UXI6
+
+#CloudFront Distro Variables
+cf_docs=E22ZPUEHDVXMET
+cf_pp=E1GHZY7A5PB0OQ
+cf_mycard=E2ILS1C6JA58DZ
+cf_copayportal=E3OLQU7JV4K15B
+cf_online=EAKL4KXNY64G2
+cf_pesausa=E3JJ9UURV179VF
+
+
+# Change to my local Transfer directory where files will be saved
+cd ~/Desktop/Transfer/
+
+# Create a folder under named by today's date for record keeping
+mkdir to_$destination
+cd to_$destination
+
+# Get copy of all files currently in Source Bucket and output to file
+aws s3 ls $source > source_pre_"$today".txt
+
+# Get copy of all files in Destination bucket before transfer
+aws s3 ls $destination > destination_pre_"$today".txt
+
+# Backup Destination files to a backup bucket in the event of needing to rollback changes
+aws s3 sync s3://$destination/ s3://s3-dev-logs.aws.paysign.com/Code_Backups/${destination}/${today}/
+
+# Sync all files from Source to Destination bucket and output files synced to txt file
+aws s3 sync --delete s3://$source s3://$destination > destination_during_transfer_"$today".txt
+
+# List all new files in Production bucket and output to text file
+aws s3 ls $destination > destination_post_transfer_"$today".txt
+
+# Zip up all files in folder and name accordingly for ticket
+zip -r transferred_files.zip ./*
+
+# Invalidate Cloudfront files for corresponding URL
+aws cloudfront create-invalidation --distribution-id $cldfnt --paths "/*"
