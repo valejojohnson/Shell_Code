@@ -1,0 +1,7 @@
+#!/bin/bash
+
+while read p; do
+    echo "$p"
+    (enter code here)
+    echo
+done < <name of file to iterate>
