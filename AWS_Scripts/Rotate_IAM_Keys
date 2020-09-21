@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#Pull Latest Access Key For User
+get_access_keys() {
+    aws iam list-access-keys \
+        --user-name "$1" \
+    --query 'AccessKeyMetadata[].AccessKeyId' \
+        --output text
+}
+
+#Create New Access Key
+create_new_access_key() {
+    aws iam create-access-key \
+    --query '[AccessKey.AccessKeyId,AccessKey.SecretAccessKey]' \
+        --output text | awk '{ print "export AWS_ACCESS_KEY_ID=\"" $1 "\"\n" "export AWS_SECRET_ACCESS_KEY=\"" $2 "\"" }'
+}
+
+#Inactivate Old Key
+send_keys_to_evil_hackers() {
+    for key in "$@"; do
+        aws iam update-access-key \
+            --access-key-id "${key}" \
+                --status Inactive
+    done
+}
