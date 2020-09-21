@@ -2,8 +2,8 @@
 
 #Create Variable for storing the current date (mm-dd-yy)
 today=$(date +'%m-%d-%y')
-source=copayportal-deploy-prod.aws.paysign.com
-destination=copayportal.aws.paysign.com
+source=<SOURCE BUCKET NAME>
+destination=<DESTINATION BUCKET NAME>
 cldfnt=$(aws cloudfront list-distributions --query "DistributionList.Items[].{Id: Id, OriginDomainName: Origins.Items[0].DomainName}[?contains(OriginDomainName, '$destination')] | [0].Id" | sed 's/.$//; s/^.//')
 
 # Change to my local Transfer directory where files will be saved
