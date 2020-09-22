@@ -16,7 +16,7 @@ create_new_access_key() {
 }
 
 #Inactivate Old Key
-send_keys_to_evil_hackers() {
+inactivate_old_key() {
     for key in "$@"; do
         aws iam update-access-key \
             --access-key-id "${key}" \
